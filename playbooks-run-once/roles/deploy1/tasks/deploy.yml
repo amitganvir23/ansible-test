@@ -1,0 +1,9 @@
+- name: deploying monogo db
+  shell: "echo deploying monogo db done"
+
+### once the above deployment done, replace value so that this playbook cant execute again. the condition define in main.yml
+- replace:
+    path: "{{ role_path }}/vars/main.yml"
+    regexp: 'skip_mongo_db_task: FALSE'
+    replace: 'skip_mongo_db_task: TRUE'
+  delegate_to: localhost
