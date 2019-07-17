@@ -1,0 +1,3 @@
+---
+# vars file for roles/deploy1
+skip_mongo_db_task: TRUE
