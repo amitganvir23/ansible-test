@@ -1,0 +1,5 @@
+# tasks file for roles/deploy1
+## if below condition becomes value 'TRUE' it wont include this playbook
+- name: Deploying monog db
+  include_tasks: deploy.yml
+  when: skip_mongo_db_task|upper == 'FALSE'
