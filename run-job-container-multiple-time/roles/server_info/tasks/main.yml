@@ -1,0 +1,12 @@
+---
+- name: Task for Server info call
+  block:
+  - debug:
+      var: "skip_{{call_name}}_call"
+
+  - set_fact:
+      skip_task: "{{ '_'.join(( 'skip', call_name, 'call' )) }}"
+
+  - include_tasks: serverinfo.yml
+    when: lookup('vars', skip_task)|upper == 'FALSE' and lookup('vars', skip_task) is defined
+  when: call_name is defined
