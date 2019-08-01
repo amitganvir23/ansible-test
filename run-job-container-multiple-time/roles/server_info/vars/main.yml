@@ -1,0 +1,4 @@
+---
+# APIServerInfo constants
+skip_app1_call: FALSE
+skip_app2_call: FALSE
