@@ -1,0 +1,46 @@
+---
+- name: Create temp {{ call_name }} directory
+  file:
+    path: "/tmp/{{ call_name }}/{{ project_name }}"
+    state: directory
+    mode: 0755
+
+- name: Create the job files
+  template:
+    src: jobs.j2
+    dest: "/tmp/{{ call_name }}/{{ project_name }}/{{ call_name }}-job.yaml"
+  
+- name: Create and Run Jobs
+  shell: "kubectl --namespace={{ project_name }} apply -f {{ call_name }}-job.yaml"
+  args:
+    chdir: "/tmp/{{ call_name }}/{{ project_name }}"
+
+- name: Check id container completed or not
+  shell: "kubectl --namespace={{ project_name }} get pods -a | grep serverinfo-{{ call_name }} | awk '{print $3}' | grep 'Completed'"
+  register: health
+  until: health.stdout == 'Completed'
+  delay: 30
+  retries: 30
+
+- name: "Check pod name"
+  shell: "kubectl --namespace={{ project_name }} get pods -a | grep serverinfo-{{ call_name }} | awk '{ print $1 }'"
+  register: pod_name
+
+- name: "Check the logs"
+  shell: "kubectl --namespace={{ project_name }} logs {{ pod_name.stdout }}"
+  register: serverinfo_call_logs
+
+- name: delete job container
+  shell: "kubectl --namespace={{ project_name }} delete job/serverinfo-{{ call_name }}"
+
+- name: Delete temp {{ call_name }} directory
+  file:
+    path: "/tmp/{{ call_name }}/{{ project_name }}"
+    state: absent
+
+- replace:
+    path: "{{ role_path }}/vars/main.yml"
+    regexp: 'skip_{{ call_name }}_call: FALSE'
+    replace: 'skip_{{ call_name }}_call: TRUE'
+  delegate_to: localhost
+  
