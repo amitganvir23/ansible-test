@@ -1,0 +1,8 @@
+---
+- name: Get API apple Call info
+  hosts: masters
+  vars:
+    call_name: "api2"
+    call_num: "433"
+  roles:
+     - server_info
